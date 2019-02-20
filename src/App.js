@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {getJson, postJson} from './fetch-util';
 import Game from './Game';
 import './App.css';
@@ -12,10 +12,9 @@ ws.addEventListener('message', event => {
   const game = lastGameMap[gameId];
   if (game) {
     game.board[row][column] = marker;
+    game.winner = winner;
     lastSetGameMap({...lastGameMap, [game.id]: game});
     if (winner) alert(`${winner} won!`);
-  } else {
-    console.error(`No game with id ${gameId} was found!`);
   }
 });
 
@@ -36,14 +35,13 @@ function App() {
   const opponentProps = useFormInput('');
   const opponent = opponentProps.value;
 
-  const clearGames = () => {
-    console.log('App.js clearGames: gameMap =', gameMap);
-    const newGameMap = gameMap.reduce((acc, game) => {
+  const clearGames = useCallback(() => {
+    const newGameMap = Object.values(gameMap).reduce((acc, game) => {
       if (!game.winner) acc[game.id] = game;
       return acc;
     }, {});
     setGameMap(newGameMap);
-  };
+  }, [gameMap]);
 
   const createGame = async () => {
     try {

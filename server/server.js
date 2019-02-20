@@ -120,6 +120,7 @@ app.post('/move', async (req, res) => {
   if (position) {
     res.status(400).send('position already occupied');
   } else {
+    // Make the move and determine whether the game is over..
     game.board[row][column] = marker;
     game.lastMarker = marker;
     const winner = getWinner(game);
@@ -129,13 +130,16 @@ app.post('/move', async (req, res) => {
     // Remove any WebSockets that are not currently open.
     webSockets = webSockets.filter(ws => ws.readyState === 1);
 
+    // Notify all the connected clients about this move.
     const data = JSON.stringify({gameId, row, column, marker, winner});
-
     try {
       webSockets.forEach(ws => ws.send(data));
     } catch (e) {
       console.error(e);
     }
+
+    // Remove the game if it is over.
+    if (winner) delete gameMap[game.id];
   }
 });
 
