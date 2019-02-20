@@ -13,6 +13,10 @@
   width: var(--size);
 }
 
+.game.over .position {
+  border-color: lightblue;
+}
+
 .game > .row {
   height: var(--size);
 }

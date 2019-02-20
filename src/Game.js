@@ -5,7 +5,7 @@ import './Game.css';
 const INDEXES = [0, 1, 2];
 
 function Game({player, game}) {
-  const {board, id, player1, player2} = game;
+  const {board, id, player1, player2, winner} = game;
   const [localBoard, setBoard] = useState(board);
   console.log('Game.js x: board =', board);
   console.log('Game.js x: player =', player);
@@ -28,10 +28,14 @@ function Game({player, game}) {
     }
   };
 
+  let className = 'game';
+  if (winner) className += ' over';
+
   return (
-    <div className="game">
+    <div className={className}>
       <header>
         {player1} vs. {player2}
+        {winner && ` - ${winner} won!`}
       </header>
       {INDEXES.map(row => (
         <div className="row" key={`row${row}`}>

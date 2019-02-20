@@ -5,6 +5,9 @@ const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
+const WebSocket = require('ws');
+
+const INDEXES = [0, 1, 2];
 
 // This is a map where keys are game ids
 // and values are game objects.
@@ -17,13 +20,19 @@ const path = require('path');
 // board: Number[][]
 const gameMap = {};
 
+const webSockets = [];
+const wss = new WebSocket.Server({port: 1920});
+wss.on('connection', ws => {
+  webSockets.push(ws);
+  const msg = 'A client connected to the WebSocket server.';
+  console.log(msg);
+});
+
 const app = express();
 app.use(cors());
 app.use(morgan('short'));
 app.use(express.static(path.resolve(__dirname, '../dist')));
 app.use(bodyParser.json({limit: '4mb'}));
-
-const INDEXES = [0, 1, 2];
 
 function columnWin(board, marker, column) {
   const boardColumn = board.map(boardRow => boardRow[column]);
@@ -79,8 +88,9 @@ app.post('/game', async (req, res) => {
   const id = Date.now();
   const board = INDEXES.map(row => INDEXES.map(column => ''));
   const game = {id, player1, player2, board};
+  console.log('server.js post game: game =', game);
   gameMap[id] = game;
-  res.sendStatus(200);
+  res.status(200).send(JSON.stringify(game));
 });
 
 app.post('/move', async (req, res) => {
@@ -106,8 +116,20 @@ app.post('/move', async (req, res) => {
   } else {
     game.board[row][column] = marker;
     game.lastMarker = marker;
-    game.winner = getWinner(game);
-    res.status(200).send(game.winner);
+    const winner = getWinner(game);
+    game.winner = winner;
+    const data = JSON.stringify({gameId, row, column, marker, winner});
+    console.log('server.js move: data =', data);
+    res.status(200).send(winner);
+
+    try {
+      webSockets.forEach(ws => {
+        console.log('server.js move: ws.readyState =', ws.readyState);
+        ws.send(data);
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 });
 
