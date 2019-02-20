@@ -1,0 +1,18 @@
+.game {
+  --size: 40px;
+  margin-top: 20px;
+}
+
+.game .position {
+  border: solid blue 1px;
+  display: inline-block;
+  height: var(--size);
+  line-height: var(--size);
+  text-align: center;
+  vertical-align: top;
+  width: var(--size);
+}
+
+.game > .row {
+  height: var(--size);
+}
