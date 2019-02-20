@@ -16,15 +16,14 @@ function Game({player, game}) {
     try {
       localBoard[row][column] = marker;
       const res = await postJson('move', {gameId: id, row, column, marker});
-      const text = await res.text();
       if (res.ok) {
         setBoard([...localBoard]);
-        if (text) alert(`Winner is ${text}!`);
       } else {
-        alert(text);
+        const msg = await res.text();
+        console.error('Error making move:', msg);
       }
     } catch (e) {
-      alert('Error making move');
+      console.error('Error making move:', e);
     }
   };
 

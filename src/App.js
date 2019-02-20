@@ -14,29 +14,33 @@ function useFormInput(initialValue) {
 }
 
 function App() {
-  const [games, setGames] = useState([]);
-  console.log('App.js: games =', games);
+  const [gameMap, setGameMap] = useState([]);
   const nameProps = useFormInput('');
   const name = nameProps.value;
   const opponentProps = useFormInput('');
   const opponent = opponentProps.value;
 
   ws.addEventListener('message', event => {
-    console.log('ws received:', event.data);
+    console.log('ws event =', event);
     const {gameId, row, column, marker, winner} = JSON.parse(event.data);
-    console.log('App.js ws message: gameId =', gameId);
-    console.log('App.js ws message: typeof gameId =', typeof gameId);
-    console.log('App.js ws message: games =', games);
-    const game = games.find(game => game.id === gameId);
+    const game = gameMap[gameId];
     if (game) {
       game.board[row][column] = marker;
+      setGameMap({...gameMap, [game.id]: game});
       if (winner) alert(`${winner} won!`);
       //} else {
       //  console.error(`No game with id ${gameId} was found!`);
     }
   });
 
-  const clearGames = () => setGames(games.filter(game => !game.winner));
+  const clearGames = () => {
+    console.log('App.js clearGames: gameMap =', gameMap);
+    const newGameMap = gameMap.reduce((acc, game) => {
+      if (!game.winner) acc[game.id] = game;
+      return acc;
+    }, {});
+    setGameMap(newGameMap);
+  };
 
   const createGame = async () => {
     console.log('App.js createGame: name =', name);
@@ -48,18 +52,18 @@ function App() {
       });
       const game = await res.json();
       console.log('App.js createGame: game =', game);
-      setGames([...games, game]);
+      setGameMap({...gameMap, [game.id]: game});
     } catch (e) {
-      alert('Error creating game');
+      console.error('Error creating game:', e);
     }
   };
 
   const loadGames = async () => {
     try {
-      const games = await getJson(`games/${name}`);
-      setGames(games);
+      const gameMap = await getJson(`games/${name}`);
+      setGameMap(gameMap);
     } catch (e) {
-      alert('Error loading games');
+      console.error('Error loading games:', e);
     }
   };
 
@@ -79,10 +83,10 @@ function App() {
           Play
         </button>
       </div>
-      {games.map(game => (
+      {Object.values(gameMap).map(game => (
         <Game player={name} game={game} key={game.id} />
       ))}
-      <button disabled={games.length === 0} onClick={clearGames}>
+      <button disabled={Object.keys(gameMap).length === 0} onClick={clearGames}>
         Clear Completed Games
       </button>
     </div>

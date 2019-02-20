@@ -24,8 +24,11 @@ const webSockets = [];
 const wss = new WebSocket.Server({port: 1920});
 wss.on('connection', ws => {
   webSockets.push(ws);
-  const msg = 'A client connected to the WebSocket server.';
-  console.log(msg);
+  console.log('A client connected to the WebSocket server.');
+
+  ws.on('close', () => {
+    console.log('A WebSocket closed!');
+  });
 });
 
 const app = express();
@@ -73,9 +76,10 @@ app.get('/heartbeat', async (req, res) => {
 
 app.get('/games/:userId', async (req, res) => {
   const {userId} = req.params;
-  const gamesForUser = Object.values(gameMap).filter(
-    game => game.player1 === userId || game.player2 === userId
-  );
+  const gamesForUser = Object.values(gameMap).reduce((acc, game) => {
+    if (game.player1 === userId || game.player2 === userId) acc[game.id] = game;
+    return acc;
+  }, {});
 
   res.set('Content-Type', 'application/json');
   res.send(gamesForUser);
@@ -88,9 +92,8 @@ app.post('/game', async (req, res) => {
   const id = Date.now();
   const board = INDEXES.map(row => INDEXES.map(column => ''));
   const game = {id, player1, player2, board};
-  console.log('server.js post game: game =', game);
   gameMap[id] = game;
-  res.status(200).send(JSON.stringify(game));
+  res.send(JSON.stringify(game));
 });
 
 app.post('/move', async (req, res) => {
@@ -118,15 +121,13 @@ app.post('/move', async (req, res) => {
     game.lastMarker = marker;
     const winner = getWinner(game);
     game.winner = winner;
-    const data = JSON.stringify({gameId, row, column, marker, winner});
-    console.log('server.js move: data =', data);
-    res.status(200).send(winner);
+    res.send(winner);
 
+    const data = JSON.stringify({gameId, row, column, marker, winner});
     try {
-      webSockets.forEach(ws => {
-        console.log('server.js move: ws.readyState =', ws.readyState);
-        ws.send(data);
-      });
+      console.log('server.js post move: sending to websockets');
+      webSockets.forEach(ws => ws.send(data));
+      console.log('server.js post move: sent to websockets');
     } catch (e) {
       console.error(e);
     }
