@@ -2,11 +2,7 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
+/server/node_modules
 
 # production
 /build
