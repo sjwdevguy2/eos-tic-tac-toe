@@ -125,9 +125,9 @@ app.post('/move', async (req, res) => {
 
     const data = JSON.stringify({gameId, row, column, marker, winner});
     try {
-      console.log('server.js post move: sending to websockets');
+      console.log('server.js post move: sending to WebSockets');
       webSockets.forEach(ws => ws.send(data));
-      console.log('server.js post move: sent to websockets');
+      console.log('server.js post move: sent to WebSockets');
     } catch (e) {
       console.error(e);
     }
