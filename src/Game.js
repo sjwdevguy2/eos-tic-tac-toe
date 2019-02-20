@@ -7,12 +7,11 @@ const INDEXES = [0, 1, 2];
 function Game({player, game}) {
   const {board, id, player1, player2, winner} = game;
   const [localBoard, setBoard] = useState(board);
-  console.log('Game.js x: board =', board);
-  console.log('Game.js x: player =', player);
-  console.log('Game.js x: player1 =', player1);
   const marker = player === player1 ? 'X' : 'O';
 
   const move = async (row, column) => {
+    if (winner) return;
+
     try {
       localBoard[row][column] = marker;
       const res = await postJson('move', {gameId: id, row, column, marker});

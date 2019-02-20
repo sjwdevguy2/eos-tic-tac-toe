@@ -20,14 +20,17 @@ const INDEXES = [0, 1, 2];
 // board: Number[][]
 const gameMap = {};
 
-const webSockets = [];
+let webSockets = [];
 const wss = new WebSocket.Server({port: 1920});
 wss.on('connection', ws => {
   webSockets.push(ws);
-  console.log('A client connected to the WebSocket server.');
+  console.log(
+    webSockets.length,
+    'clients are connected to the WebSocket server.'
+  );
 
   ws.on('close', () => {
-    console.log('A WebSocket closed!');
+    console.log('a WebSocket closed');
   });
 });
 
@@ -123,11 +126,13 @@ app.post('/move', async (req, res) => {
     game.winner = winner;
     res.send(winner);
 
+    // Remove any WebSockets that are not currently open.
+    webSockets = webSockets.filter(ws => ws.readyState === 1);
+
     const data = JSON.stringify({gameId, row, column, marker, winner});
+
     try {
-      console.log('server.js post move: sending to WebSockets');
       webSockets.forEach(ws => ws.send(data));
-      console.log('server.js post move: sent to WebSockets');
     } catch (e) {
       console.error(e);
     }

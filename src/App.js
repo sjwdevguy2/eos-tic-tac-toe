@@ -5,6 +5,20 @@ import './App.css';
 
 const ws = new WebSocket('ws://localhost:1920');
 
+let lastGameMap, lastSetGameMap;
+ws.addEventListener('message', event => {
+  const details = JSON.parse(event.data);
+  const {gameId, row, column, marker, winner} = details;
+  const game = lastGameMap[gameId];
+  if (game) {
+    game.board[row][column] = marker;
+    lastSetGameMap({...lastGameMap, [game.id]: game});
+    if (winner) alert(`${winner} won!`);
+  } else {
+    console.error(`No game with id ${gameId} was found!`);
+  }
+});
+
 function useFormInput(initialValue) {
   const [value, setValue] = useState(initialValue);
   const onChange = e => setValue(e.target.value);
@@ -14,24 +28,13 @@ function useFormInput(initialValue) {
 }
 
 function App() {
-  const [gameMap, setGameMap] = useState([]);
+  const [gameMap, setGameMap] = useState({});
+  lastGameMap = gameMap;
+  lastSetGameMap = setGameMap;
   const nameProps = useFormInput('');
   const name = nameProps.value;
   const opponentProps = useFormInput('');
   const opponent = opponentProps.value;
-
-  ws.addEventListener('message', event => {
-    console.log('ws event =', event);
-    const {gameId, row, column, marker, winner} = JSON.parse(event.data);
-    const game = gameMap[gameId];
-    if (game) {
-      game.board[row][column] = marker;
-      setGameMap({...gameMap, [game.id]: game});
-      if (winner) alert(`${winner} won!`);
-      //} else {
-      //  console.error(`No game with id ${gameId} was found!`);
-    }
-  });
 
   const clearGames = () => {
     console.log('App.js clearGames: gameMap =', gameMap);
@@ -43,15 +46,12 @@ function App() {
   };
 
   const createGame = async () => {
-    console.log('App.js createGame: name =', name);
-    console.log('App.js createGame: opponent =', opponent);
     try {
       const res = await postJson('game', {
         player1: name,
         player2: opponent
       });
       const game = await res.json();
-      console.log('App.js createGame: game =', game);
       setGameMap({...gameMap, [game.id]: game});
     } catch (e) {
       console.error('Error creating game:', e);
