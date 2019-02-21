@@ -18,11 +18,10 @@ function Game({player, game}) {
       if (res.ok) {
         setBoard([...localBoard]);
       } else {
-        const msg = await res.text();
-        console.error('Error making move:', msg);
+        alert(await res.text());
       }
     } catch (e) {
-      console.error('Error making move:', e);
+      alert(`Error making move: ${e.message}`);
     }
   };
 

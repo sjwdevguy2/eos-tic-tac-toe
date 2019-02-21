@@ -53,7 +53,7 @@ function App() {
       const game = await res.json();
       setGameMap({...gameMap, [game.id]: game});
     } catch (e) {
-      console.error('Error creating game:', e);
+      alert(`Error creating game: ${e.message}`);
     }
   };
 
@@ -62,7 +62,7 @@ function App() {
       const gameMap = await getJson(`games/${name}`);
       setGameMap(gameMap);
     } catch (e) {
-      console.error('Error loading games:', e);
+      alert(`Error loading games: ${e.message}`);
     }
   };
 
@@ -83,8 +83,8 @@ function App() {
         </button>
       </div>
       {Object.values(gameMap).map(game => (
-        <div>
-          <Game player={name} game={game} key={game.id} />
+        <div key={game.id}>
+          <Game player={name} game={game} />
         </div>
       ))}
       <button disabled={Object.keys(gameMap).length === 0} onClick={clearGames}>

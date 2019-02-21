@@ -22,17 +22,7 @@ const gameMap = {};
 
 let webSockets = [];
 const wss = new WebSocket.Server({port: 1920});
-wss.on('connection', ws => {
-  webSockets.push(ws);
-  console.log(
-    webSockets.length,
-    'clients are connected to the WebSocket server.'
-  );
-
-  ws.on('close', () => {
-    console.log('a WebSocket closed');
-  });
-});
+wss.on('connection', ws => webSockets.push(ws));
 
 const app = express();
 app.use(cors());
@@ -110,9 +100,9 @@ app.post('/move', async (req, res) => {
     : marker !== 'X' && marker !== 'O'
     ? `invalid marker "${marker}"`
     : !game
-    ? `invalid game id "${gameId}"`
+    ? `game ${gameId} not found on server`
     : game.lastMarker && game.lastMarker === marker
-    ? `not turn for ${marker}`
+    ? `It is not your turn.`
     : null;
   if (msg) return res.status(400).send(msg);
 
@@ -143,4 +133,4 @@ app.post('/move', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.info('ready'));
+app.listen(PORT, () => console.info('listing on port', PORT));
