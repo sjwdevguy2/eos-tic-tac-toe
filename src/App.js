@@ -1,8 +1,12 @@
 import React, {useCallback, useState} from 'react';
 import {getJson, postJson} from './fetch-util';
 import Dialog from './Dialog';
+import {getEosApi} from './EOS';
 import Game from './Game';
 import './App.css';
+
+const eosApi = getEosApi();
+console.log('App.js x: eosApi =', eosApi);
 
 const ws = new WebSocket('ws://localhost:1920');
 
