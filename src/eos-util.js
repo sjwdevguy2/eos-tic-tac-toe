@@ -28,11 +28,11 @@ export async function transact(actionName, data) {
     name: actionName,
     authorization: [
       {
-        actor: ACCOUNT,
+        actor: data.host,
         permission: 'active'
       }
     ],
-    data: {...data, host: HOST}
+    data: {...data, host: data.host}
   };
   console.log('eos-util.js transact: action =', action);
 
