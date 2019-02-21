@@ -1,5 +1,7 @@
 .game {
+  --bg-color: cornflowerblue;
   --size: 40px;
+
   background-color: white;
   border-radius: 10px;
   display: inline-block;
@@ -13,7 +15,6 @@
 }
 
 .game .position {
-  border: solid blue 1px;
   display: inline-block;
   height: var(--size);
   line-height: var(--size);
@@ -22,10 +23,18 @@
   width: var(--size);
 }
 
-.game.over .position {
-  border-color: lightblue;
+.game.over {
+  background-color: lightblue;
 }
 
 .game > .row {
   height: var(--size);
+}
+
+.game > .row:not(:last-of-type) {
+  border-bottom: solid var(--bg-color) 2px;
+}
+
+.game .position:not(:last-of-type) {
+  border-right: solid var(--bg-color) 2px;
 }
