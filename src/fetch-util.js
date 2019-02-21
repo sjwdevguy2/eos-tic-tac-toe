@@ -1,5 +1,3 @@
-import {useEffect, useState} from 'react';
-
 const SERVER_URL = 'http://localhost:1919/';
 const options = {};
 
@@ -21,16 +19,4 @@ export async function postJson(urlSuffix, obj) {
   const url = SERVER_URL + urlSuffix;
   const res = await fetch(url, {...options, method: 'POST', headers, body});
   return res;
-}
-
-export function useFetchState(urlSuffix, initialValue) {
-  const [value, setValue] = useState(initialValue);
-
-  useEffect(() => {
-    getJson(urlSuffix)
-      .then(setValue)
-      .catch(e => console.warn(e));
-  }, []);
-
-  return [value, setValue];
 }

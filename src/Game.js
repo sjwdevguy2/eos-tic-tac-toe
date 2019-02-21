@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {postJson} from './fetch-util';
+import {transact} from './eos-util';
 import './Game.css';
 
 const INDEXES = [0, 1, 2];
@@ -14,11 +14,25 @@ function Game({player, game}) {
 
     try {
       localBoard[row][column] = marker;
+      /*
       const res = await postJson('move', {gameId: id, row, column, marker});
       if (res.ok) {
         setBoard([...localBoard]);
       } else {
         alert(await res.text());
+      }
+      */
+      const text = transact('move', {
+        host: player1,
+        challenger: player2,
+        row,
+        column,
+        by: player
+      });
+      if (text) {
+        alert(text);
+      } else {
+        setBoard([...localBoard]);
       }
     } catch (e) {
       alert(`Error making move: ${e.message}`);

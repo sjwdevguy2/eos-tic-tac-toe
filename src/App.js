@@ -1,12 +1,9 @@
 import React, {useCallback, useState} from 'react';
-import {getJson, postJson} from './fetch-util';
+import {getJson} from './fetch-util';
 import Dialog from './Dialog';
-import {getEosApi} from './EOS';
+import {transact} from './eos-util';
 import Game from './Game';
 import './App.css';
-
-const eosApi = getEosApi();
-console.log('App.js x: eosApi =', eosApi);
 
 const ws = new WebSocket('ws://localhost:1920');
 
@@ -50,11 +47,14 @@ function App() {
 
   const createGame = async () => {
     try {
+      /*
       const res = await postJson('game', {
         player1: name,
         player2: opponent
       });
       const game = await res.json();
+      */
+      const game = transact('create', {host: name, challenger: opponent});
       setGameMap({...gameMap, [game.id]: game});
     } catch (e) {
       alert(`Error creating game: ${e.message}`);
