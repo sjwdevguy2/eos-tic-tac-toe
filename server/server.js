@@ -127,8 +127,8 @@ app.post('/move', async (req, res) => {
     game.winner = winner;
     res.send(winner);
 
-    // Remove any WebSockets that are not currently open.
-    webSockets = webSockets.filter(ws => ws.readyState === 1);
+    // Remove any WebSockets that are closing or closed.
+    webSockets = webSockets.filter(ws => ws.readyState <= 1);
 
     // Notify all the connected clients about this move.
     const data = JSON.stringify({gameId, row, column, marker, winner});

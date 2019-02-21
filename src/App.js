@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {getJson, postJson} from './fetch-util';
+import Dialog from './Dialog';
 import Game from './Game';
 import './App.css';
 
@@ -87,6 +88,7 @@ function App() {
       <button disabled={Object.keys(gameMap).length === 0} onClick={clearGames}>
         Clear Completed Games
       </button>
+      <Dialog />
     </div>
   );
 }
