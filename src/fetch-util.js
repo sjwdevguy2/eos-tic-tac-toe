@@ -30,7 +30,7 @@ export function useFetchState(urlSuffix, initialValue) {
     getJson(urlSuffix)
       .then(setValue)
       .catch(e => console.warn(e));
-  }, []);
+  }, [urlSuffix]);
 
   return [value, setValue];
 }
