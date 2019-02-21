@@ -5,7 +5,8 @@ let dialog, setMessage;
 
 const formStyle = {
   display: 'flex',
-  justifyContent: 'center'
+  justifyContent: 'center',
+  marginTop: '10px'
 };
 
 window.alert = message => {

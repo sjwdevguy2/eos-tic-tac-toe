@@ -1,4 +1,5 @@
 body {
+  background-color: cornflowerblue;
   margin: 0;
   padding: 20px;
   font-family: sans-serif;
@@ -8,7 +9,14 @@ button,
 input {
   border: solid gray 1px;
   border-radius: 4px;
-  margin-left: 10px;
   margin-top: 10px;
   padding: 4px;
+}
+
+input {
+  margin: 0 10px;
+}
+
+label {
+  color: white;
 }

@@ -33,7 +33,7 @@ function Game({player, game}) {
     <div className={className}>
       <header>
         {player1} vs. {player2}
-        {winner && ` - ${winner} won!`}
+        {winner && <div>{winner} won!</div>}
       </header>
       {INDEXES.map(row => (
         <div className="row" key={`row${row}`}>
