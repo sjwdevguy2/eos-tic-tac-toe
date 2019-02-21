@@ -5,7 +5,7 @@ import './Game.css';
 const INDEXES = [0, 1, 2];
 
 function Game({player, game}) {
-  const {board, id, player1, player2, winner} = game;
+  const {board, player1, player2, winner} = game;
   const [localBoard, setBoard] = useState(board);
   const marker = player === player1 ? 'X' : 'O';
 

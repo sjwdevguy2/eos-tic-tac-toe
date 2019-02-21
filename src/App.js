@@ -86,11 +86,11 @@ function App() {
           Play
         </button>
       </div>
-      {Object.values(gameMap).map(game => (
+      {/* {Object.values(gameMap).map(game => (
         <div key={game.id}>
           <Game player={name} game={game} />
         </div>
-      ))}
+      ))} */}
       <button disabled={Object.keys(gameMap).length === 0} onClick={clearGames}>
         Clear Completed Games
       </button>
