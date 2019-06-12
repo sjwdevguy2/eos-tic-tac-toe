@@ -1,5 +1,8 @@
+import {shape, string} from 'prop-types';
 import React, {useState} from 'react';
+
 import {transact} from './eos-util';
+
 import './Game.css';
 
 const INDEXES = [0, 1, 2];
@@ -64,5 +67,13 @@ function Game({player, game}) {
     </div>
   );
 }
+
+Game.propTypes = {
+  game: shape({
+    id: string.isRequired,
+    winner: string
+  }).isRequired,
+  player: string.isRequired
+};
 
 export default Game;
