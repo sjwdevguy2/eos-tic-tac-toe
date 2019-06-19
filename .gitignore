@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /server/node_modules
+/server-eos/node_modules
 
 # production
 /build

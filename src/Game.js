@@ -5,15 +5,20 @@ import './Game.css';
 const INDEXES = [0, 1, 2];
 
 function Game({player, game}) {
-  const {board, id, player1, player2, winner} = game;
+  const {board, id, /*player1, player2,*/ winner} = game;
+
+  //console.info('game', game, 'player', player, 'player1', player1, 'player2', player2);
+
   const [localBoard, setBoard] = useState(board);
-  const marker = player === player1 ? 'X' : 'O';
+  const marker = getMoveCount(game.board) % 2 === 0  ? 'X' : 'O';
 
   const move = async (row, column) => {
     if (winner) return;
 
     try {
       localBoard[row][column] = marker;
+      //console.info('move','id',id,'row',row,'col',column,'marker',marker);
+      
       const res = await postJson('move', {gameId: id, row, column, marker});
       if (res.ok) {
         setBoard([...localBoard]);
@@ -29,12 +34,15 @@ function Game({player, game}) {
   if (winner) className += ' over';
 
   return (
-    <div className={className}>
-      <header>
-        {player1} vs. {player2}
-        {winner && <div>{winner} won!</div>}
-      </header>
-      {INDEXES.map(row => (
+    <div className={className} align="center">
+      <header align="center">
+          {/* {player1} vs. {player2} */}
+
+          {typeof winner !== 'undefined' && winner !== '' 
+            ? <div>Winner:&nbsp;{winner}<br/><br/></div>
+            : <div>Next move:&nbsp;{marker}<br/><br/></div>  }
+      </header>      
+        {INDEXES.map(row => (
         <div className="row" key={`row${row}`}>
           {INDEXES.map(column => (
             <div
@@ -49,6 +57,17 @@ function Game({player, game}) {
       ))}
     </div>
   );
+}
+
+function getMoveCount(board){
+  let moveCount = 0;
+  board.forEach(x => {
+    x.forEach(y => {
+      if(y !== '' && y !== 'undefined')
+        moveCount = moveCount + 1;
+    });
+  });
+  return moveCount;
 }
 
 export default Game;

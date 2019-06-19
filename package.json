@@ -32,6 +32,6 @@
   "devDependencies": {
     "eslint-plugin-react-hooks": "^1.2.0",
     "install": "^0.12.2",
-    "npm": "^6.8.0"
+    "npm": "^6.9.0"
   }
 }

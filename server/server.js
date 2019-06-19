@@ -61,28 +61,44 @@ function getWinner(game) {
   return markerWin(board, 'X') ? player1 : markerWin(board, 'O') ? player2 : '';
 }
 
+function getMoveCount(board){
+  let moveCount = 0;
+  board.forEach(x => {
+    x.forEach(y => {
+      if(y !== '' && y !== 'undefined')
+        moveCount = moveCount + 1;
+      //console.info('y',y);
+    });
+  });
+  return moveCount;
+}
+
 const validRowColumn = value => 0 <= value && value <= 2;
 
 app.get('/heartbeat', async (req, res) => {
   res.send('I am alive!');
 });
 
-app.get('/games/:userId', async (req, res) => {
-  const {userId} = req.params;
-  const gamesForUser = Object.values(gameMap).reduce((acc, game) => {
-    if (game.player1 === userId || game.player2 === userId) acc[game.id] = game;
-    return acc;
-  }, {});
+// app.get('/games/:userId', async (req, res) => {
+//   const {dashArg} = req.params;
+//   const p1 = dashArg !== 'undefined' ? dashArg.split('|')[0] : '';
+//   const p2 = dashArg !== 'undefined' ? dashArg.split('|')[1] : '';
+  
+//   const gamesForUser = Object.values(gameMap).reduce((acc, game) => {
+//     if (game.player1 === p1 && game.player2 === p2) 
+//       acc[game.id] = game;
+//     return acc;
+//   }, {});
 
-  res.set('Content-Type', 'application/json');
-  res.send(gamesForUser);
-});
+//   res.set('Content-Type', 'application/json');
+//   res.send(gamesForUser);
+// });
 
 app.post('/game', async (req, res) => {
   const {player1, player2} = req.body;
   if (!player1 || !player2)
     return res.status(400).send('player names not supplied');
-  const id = Date.now();
+  const id = player1 + '|' + player2;
   const board = INDEXES.map(row => INDEXES.map(column => ''));
   const game = {id, player1, player2, board};
   gameMap[id] = game;
@@ -90,9 +106,13 @@ app.post('/game', async (req, res) => {
 });
 
 app.post('/move', async (req, res) => {
-  const {gameId, row, column, marker} = req.body;
+  // const {gameId, row, column, marker} = req.body;
+  const {gameId, row, column} = req.body;
   const game = gameMap[gameId];
 
+  // figure out the marker based on the number of moves
+  const marker = getMoveCount(game.board) % 2 == 0 ? 'X' : 'O';
+  
   const msg = !validRowColumn(row)
     ? `invalid row ${row}`
     : !validRowColumn(column)
@@ -101,8 +121,8 @@ app.post('/move', async (req, res) => {
     ? `invalid marker "${marker}"`
     : !game
     ? `game ${gameId} not found on server`
-    : game.lastMarker && game.lastMarker === marker
-    ? `It is not your turn.`
+    // : game.lastMarker && game.lastMarker === marker
+    // ? `It is not your turn.`
     : null;
   if (msg) return res.status(400).send(msg);
 
@@ -113,7 +133,9 @@ app.post('/move', async (req, res) => {
     // Make the move and determine whether the game is over..
     game.board[row][column] = marker;
     game.lastMarker = marker;
-    const winner = getWinner(game);
+    let winner = getWinner(game);
+    if (winner === '' && getMoveCount(game.board) === 9)
+      winner =  'DRAW';
     game.winner = winner;
     res.send(winner);
 
@@ -133,4 +155,4 @@ app.post('/move', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.info('listing on port', PORT));
+app.listen(PORT, () => console.info('listening on port', PORT));
