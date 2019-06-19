@@ -12,6 +12,7 @@ const WebSocket = require('ws');
 // eosjs blockchain server connection info
 const eosjsUrl = 'http://OCI1668.objectcomputing.com:48888';
 const defaultPrivateKey = "5JtUScZK2XEp3g9gh7F8bwtPTRAkASmNrrftmx4AxDKD5K4zDnr";
+const contract = 'tic.tac.toe';
 // 2 active accounts
 // 1) tttplayerxxx
 // 2) tttplayerooo
@@ -176,7 +177,7 @@ async function eosjsTransaction(actor, actionName, data){
   try {
     const result = await api.transact({
       actions: [{
-        account: 'tic.tac.toe',
+        account: contract,
         name: actionName, //(close/create/game/move/restart)
         authorization: [{
           actor: actor, // (host - get from phil - implementation dependant)
@@ -208,8 +209,8 @@ async function eosjsLoadOrCreateGame(host, challenger){
   try {
     const resp = await rpc.get_table_rows({
         json: true,            // Get the response as json
-        code: 'tic.tac.toe',   // Contract that we target
-        scope: host,          // Account that owns the data (hostname: player1)
+        code: contract,        // Contract that we target
+        scope: host,           // Account that owns the data (hostname: player1)
         table: 'games',        // Table name
         limit: 10,             // Maximum number of rows that we want to get
         reverse: false,        // Optional: Get reversed data
