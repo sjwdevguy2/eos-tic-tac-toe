@@ -39,7 +39,7 @@ function Game({player, game}) {
           {/* {player1} vs. {player2} */}
 
           {typeof winner !== 'undefined' && winner !== '' 
-            ? <div>Winner:&nbsp;{winner}<br/><br/></div>
+            ? <div align="center">Winner:<br/>{winner}<br/></div>
             : <div>Next move:&nbsp;{marker}<br/><br/></div>  }
       </header>      
         {INDEXES.map(row => (

@@ -1,6 +1,6 @@
 .game {
   --bg-color: cornflowerblue;
-  --size: 50px;
+  --size: 40px;
 
   background-color: white;
   border-radius: 10px;
@@ -21,6 +21,7 @@
   text-align: center;
   vertical-align: top;
   width: var(--size);
+  font-size: xx-large;
 }
 
 .game.over {
