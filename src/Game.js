@@ -4,7 +4,7 @@ import './Game.css';
 
 const INDEXES = [0, 1, 2];
 
-function Game({player, game}) {
+function Game({game}) {
   const {board, id, /*player1, player2,*/ winner} = game;
 
   //console.info('game', game, 'player', player, 'player1', player1, 'player2', player2);
@@ -36,13 +36,13 @@ function Game({player, game}) {
   return (
     <div className={className} align="center">
       <header align="center">
-          {/* {player1} vs. {player2} */}
+        {/* {player1} vs. {player2} */}
 
-          {typeof winner !== 'undefined' && winner !== '' 
-            ? <div align="center">Winner:<br/>{winner}<br/></div>
-            : <div>Next move:&nbsp;{marker}<br/><br/></div>  }
+        {typeof winner !== 'undefined' && winner !== '' 
+          ? <div align="center">Winner:<br/>{winner}<br/></div>
+          : <div>Next move:&nbsp;{marker}<br/><br/></div>  }
       </header>      
-        {INDEXES.map(row => (
+      {INDEXES.map(row => (
         <div className="row" key={`row${row}`}>
           {INDEXES.map(column => (
             <div

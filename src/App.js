@@ -92,12 +92,12 @@ function App() {
         <label>Challenger</label>
         <input {...opponentProps} />
         <button disabled={!name || !opponent} onClick={createGame}>
-          Create
+          Open
         </button>
       </div>
-      {Object.values(gameMap).map(game => (
-        <div key={game.id}>
-          <Game player={name} game={game} />
+      {Object.values(gameMap).map(g => (
+        <div key={g.id}>
+          <Game game={g} />
         </div>
       ))}
       {/* <button disabled={Object.keys(gameMap).length === 0} onClick={clearGames}>

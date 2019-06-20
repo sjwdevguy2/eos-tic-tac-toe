@@ -82,22 +82,23 @@ app.post('/game', async (req, res) => {
     if (!player1 || !player2)
         return res.status(400).send('player names not supplied');
 
-    let game = await eosjsLoadOrCreateGame(player1, player2);
-    if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
+    const game = await eosjsLoadOrCreateGame(player1, player2);
+
+    // DO NOT RESTART THE GAME
+    // if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
+    //   // Restart existing game
+    //   game = await eosjsTransaction(
+    //     player1, 
+    //     'restart', 
+    //     {
+    //       // <fields> properties from *.abi file 
+    //       host: player1,
+    //       challenger: player2,
+    //       by: player1
+    //     });
       
-      // Restart existing game
-      game = await eosjsTransaction(
-        player1, 
-        'restart', 
-        {
-          // <fields> properties from *.abi file 
-          host: player1,
-          challenger: player2,
-          by: player1
-        });
-      
-      game = await eosjsLoadOrCreateGame(player1, player2);
-    } 
+    //   game = await eosjsLoadOrCreateGame(player1, player2);
+    // } 
 
     res.send(JSON.stringify(game));
 });
