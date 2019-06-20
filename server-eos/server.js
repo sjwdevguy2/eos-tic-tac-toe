@@ -220,6 +220,12 @@ async function eosjsLoadOrCreateGame(host, challenger){
       gameRows = resp.rows.filter(x => x.challenger === challenger);
     }
 
+    // should be a single game item
+    if (gameRows.length !== 1)
+      throw new Error(
+        'Failed to load a unique game where host=' + host + ' and challenger=' + challenger
+      );
+
     const game = {
       id: gameRows[0].host + '|' + gameRows[0].challenger, 
       player1: gameRows[0].host, 
