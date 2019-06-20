@@ -84,8 +84,8 @@ app.post('/game', async (req, res) => {
 
     let game = await eosjsLoadOrCreateGame(player1, player2);
     if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
-      console.info('Restarting EXISTING game\n\t', JSON.stringify(game));
-
+      
+      // Restart existing game
       game = await eosjsTransaction(
         player1, 
         'restart', 
@@ -97,36 +97,38 @@ app.post('/game', async (req, res) => {
         });
       
       game = await eosjsLoadOrCreateGame(player1, player2);
-      console.info('Restarted game\n\t', JSON.stringify(game));  
-    }
+    } 
 
     res.send(JSON.stringify(game));
 });
 
 app.post('/move', async (req, res) => {
-  // const {gameId, row, column, marker} = req.body;
-  const {gameId, row, column} = req.body;  
+  const {gameId, row, column, marker} = req.body;
 
-  const game = await eosjsLoadOrCreateGame(gameId.split('|')[0], gameId.split('|')[1]);
-  console.info('MOVE fetched-game\n\t', JSON.stringify(game));
+  const player1 = gameId.split('|')[0];
+  const player2 =  gameId.split('|')[1];
+  const by = (marker === 'X') ? player1 : player2;
 
-  // figure out the marker based on the number of moves
-  const marker = getMoveCount(game.board) % 2 == 0 ? 'X' : 'O';
-
-  // Make the move and determine whether the game is over..
-  game.lastMarker = marker;
-  game.turn = ( marker ==='O' ) ? gameId.split('|')[0] : gameId.split('|')[1];
-
-  const resultGame = await eosjsMove(game, row, column);
-  winner = resultGame.winner;
-  console.info('MOVE resultGame\n\t', JSON.stringify(resultGame));
+  // execute a move transaction
+  await eosjsTransaction(
+    by, 
+    'move', 
+    {
+      // <fields> properties from *.abi file 
+      host: player1,
+      challenger: player2,
+      by: by,
+      row: row,
+      column: column
+    });
+  const resultGame = await eosjsLoadOrCreateGame(player1, player2);
   res.send(resultGame.winner);
 
   // Remove any WebSockets that are closing or closed.
   webSockets = webSockets.filter(ws => ws.readyState <= 1);
 
   // Notify all the connected clients about this move.
-  const data = JSON.stringify({gameId, row, column, marker, winner});
+  const data = JSON.stringify({gameId, row, column, marker, winner: resultGame.winner});
   try {
     webSockets.forEach(ws => ws.send(data));
   } catch (e) {
@@ -137,30 +139,6 @@ app.post('/move', async (req, res) => {
 // async function sleep (time) {
 //   return await new Promise((resolve) => setTimeout(resolve, time));
 // }
-
-async function eosjsMove(game, row, col){
-
-  const by = getMoveCount(game.board) % 2 == 0 ? game.player1 : game.player2;
-  console.info('MOVE game input object:', JSON.stringify(game));            
-
-  const resp = await eosjsTransaction(
-    by, 
-    'move', 
-    {
-      // <fields> properties from *.abi file 
-      host: game.player1,
-      challenger: game.player2,
-      by: by,
-      row: row,
-      column: col
-    });
-  //console.info('MOVE after move object:', JSON.stringify(resp) );
-
-  const bcGame = await eosjsLoadOrCreateGame(game.player1, game.player2);
-
-  console.info('MOVE query game after move object\n\t', JSON.stringify(bcGame) );
-  return bcGame;
-}
 
 // execute a transaction
 async function eosjsTransaction(actor, actionName, data){
@@ -190,8 +168,16 @@ async function eosjsTransaction(actor, actionName, data){
       blocksBehind: 3,
       expireSeconds: 30,
     });
-    //console.dir(result);
-    console.info('eosjsTransaction-result(' + actionName + ')\n\t', JSON.stringify(result));            
+
+    // print out only the interesting response action data
+    if ('processed' in result
+     && 'action_traces' in result.processed
+     && 'act' in result.processed.action_traces[0]) {
+      console.info(
+        'eosjsTransaction(' + actionName + ')\n\t >> ', 
+        JSON.stringify(result.processed.action_traces[0].act));
+    }
+
     return result;
   } catch (e) {
     console.log('\nCaught exception: ' + e);
@@ -217,7 +203,7 @@ async function eosjsLoadOrCreateGame(host, challenger){
         show_payer: false,     // Optional: Show ram payer
     });
 
-    console.info('get_table_rows\n\t', JSON.stringify(resp));
+    console.info('get_table_rows\n\t >> ', JSON.stringify(resp));
     
     let gameRows = resp.rows.filter(x => x.challenger === challenger);
     if (gameRows.length === 0)
@@ -231,7 +217,6 @@ async function eosjsLoadOrCreateGame(host, challenger){
           host: host,
           challenger: challenger
         });
-      console.info('CreateGame\n\t', JSON.stringify(gameRows));            
       gameRows = resp.rows.filter(x => x.challenger === challenger);
     }
 
