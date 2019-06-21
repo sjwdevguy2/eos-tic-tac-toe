@@ -19,8 +19,8 @@ function Game({game}) {
   const [localBoard, setBoard] = useState(board);
   const marker = getMoveCount(game.board) % 2 === 0  ? 'X' : 'O';
 
-  const move = async (row, column) => {
-    if (winner) return;
+  const move = async (row, column, existingValue) => {
+    if (winner || existingValue !== '') return;
 
     try {
       localBoard[row][column] = marker;
@@ -55,7 +55,7 @@ function Game({game}) {
             <div
               className="position"
               key={`column${column}`}
-              onClick={() => move(row, column)}
+              onClick={() => move(row, column, board[row][column])}
             >
               {board[row][column]}
             </div>

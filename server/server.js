@@ -99,8 +99,16 @@ app.post('/game', async (req, res) => {
   if (!player1 || !player2)
     return res.status(400).send('player names not supplied');
   const id = player1 + '|' + player2;
-  const board = INDEXES.map(row => INDEXES.map(column => ''));
-  const game = {id, player1, player2, board};
+
+  // try to reuse the cached data -- if it's there
+  let board = INDEXES.map(row => INDEXES.map(column => ''));
+  let winner = '';
+  if (gameMap[id] !== undefined){
+    board = gameMap[id].board;
+    winner = gameMap[id].winner;
+  }
+  const game = {id, player1, player2, board, winner};
+
   gameMap[id] = game;
   res.send(JSON.stringify(game));
 });
@@ -110,8 +118,10 @@ app.post('/restart', async (req, res) => {
   if (!player1 || !player2)
     return res.status(400).send('player names not supplied');
   const id = player1 + '|' + player2;
-  gameMap[id].board = INDEXES.map(row => INDEXES.map(column => ''));
-  res.send(JSON.stringify(gameMap[id]));
+  const board = INDEXES.map(row => INDEXES.map(column => ''));
+  const game = {id, player1, player2, board, winner: ''};
+  gameMap[id] = game;
+  res.send(JSON.stringify(game));
 });
 
 app.post('/move', async (req, res) => {
@@ -160,7 +170,7 @@ app.post('/move', async (req, res) => {
     }
 
     // Remove the game if it is over.
-    if (winner) delete gameMap[game.id];
+    //if (winner) delete gameMap[game.id];
   }
 });
 

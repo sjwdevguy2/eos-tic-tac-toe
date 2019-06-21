@@ -91,12 +91,11 @@ app.post('/restart', async (req, res) => {
   const {player1, player2} = req.body;
   if (!player1 || !player2)
       return res.status(400).send('player names not supplied');
-console.info("1");
-  let game = await eosjsLoadOrCreateGame(player1, player2);
-console.info("2");
-  if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
+
+    let game = await eosjsLoadOrCreateGame(player1, player2);
+
+    if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
     // Restart existing game
-    console.info("3");
     game = await eosjsTransaction(
       player1, 
       'restart', 
@@ -106,10 +105,8 @@ console.info("2");
         challenger: player2,
         by: player1
       });
-      console.info("4");
-    
+      
     game = await eosjsLoadOrCreateGame(player1, player2);
-    console.info("5");
   } 
 
   res.send(JSON.stringify(game));
