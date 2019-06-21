@@ -56,8 +56,6 @@ function App() {
       });
       const game = await res.json();
       
-      console.info('createGame', game);
-      
       if (game === null)
         alert('Error creating game');
       else 
@@ -66,6 +64,25 @@ function App() {
 
     } catch (e) {
       alert(`Error creating game: ${e.message}`);
+    }
+  };
+
+  const restartGame = async () => {
+    try {
+      const res = await postJson('restart', {
+        player1: name,
+        player2: opponent
+      });
+      const game = await res.json();
+      
+      if (game === null)
+        alert('Error restarting game');
+      else 
+        setGameMap({[game.id]: game});
+        //setGameMap({...gameMap, [game.id]: game});
+ 
+    } catch (e) {
+      alert(`Error restarting game: ${e.message}`);
     }
   };
 
@@ -93,6 +110,9 @@ function App() {
         <input {...opponentProps} />
         <button disabled={!name || !opponent} onClick={createGame}>
           Open
+        </button>
+        <button disabled={!name || !opponent} onClick={restartGame}>
+          Restart
         </button>
       </div>
       {Object.values(gameMap).map(g => (

@@ -14,13 +14,24 @@
     "start": "react-scripts start"
   },
   "eslintConfig": {
-    "extends": "react-app",
+    "extends": [
+      "react-app",
+      "plugin:react/recommended"
+    ],
     "plugins": [
+      "react",
       "react-hooks"
     ],
     "rules": {
       "react-hooks/exhaustive-deps": "error",
-      "react-hooks/rules-of-hooks": "error"
+      "react-hooks/rules-of-hooks": "error",
+      "indent": ["error", 2],
+      "linebreak-style": ["error", "windows"],
+      "quotes": ["error", "single"],
+      "semi": ["error", "always"],
+      "comma-dangle": ["error", "never"],
+      "no-cond-assign": ["error", "always"],
+      "no-console": "off"
     }
   },
   "browserslist": [

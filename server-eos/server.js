@@ -78,29 +78,41 @@ app.get('/heartbeat', async (req, res) => {
 // });
 
 app.post('/game', async (req, res) => {
-    const {player1, player2} = req.body;
-    if (!player1 || !player2)
-        return res.status(400).send('player names not supplied');
+  const {player1, player2} = req.body;
+  if (!player1 || !player2)
+      return res.status(400).send('player names not supplied');
 
-    const game = await eosjsLoadOrCreateGame(player1, player2);
+  const game = await eosjsLoadOrCreateGame(player1, player2);
 
-    // DO NOT RESTART THE GAME
-    // if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
-    //   // Restart existing game
-    //   game = await eosjsTransaction(
-    //     player1, 
-    //     'restart', 
-    //     {
-    //       // <fields> properties from *.abi file 
-    //       host: player1,
-    //       challenger: player2,
-    //       by: player1
-    //     });
-      
-    //   game = await eosjsLoadOrCreateGame(player1, player2);
-    // } 
+  res.send(JSON.stringify(game));
+});
 
-    res.send(JSON.stringify(game));
+app.post('/restart', async (req, res) => {
+  const {player1, player2} = req.body;
+  if (!player1 || !player2)
+      return res.status(400).send('player names not supplied');
+console.info("1");
+  let game = await eosjsLoadOrCreateGame(player1, player2);
+console.info("2");
+  if (game !== null && (game.winner != '' || getMoveCount(game.board) > 0)) {
+    // Restart existing game
+    console.info("3");
+    game = await eosjsTransaction(
+      player1, 
+      'restart', 
+      {
+        // <fields> properties from *.abi file 
+        host: player1,
+        challenger: player2,
+        by: player1
+      });
+      console.info("4");
+    
+    game = await eosjsLoadOrCreateGame(player1, player2);
+    console.info("5");
+  } 
+
+  res.send(JSON.stringify(game));
 });
 
 app.post('/move', async (req, res) => {
@@ -204,8 +216,6 @@ async function eosjsLoadOrCreateGame(host, challenger){
         show_payer: false,     // Optional: Show ram payer
     });
 
-    console.info('get_table_rows\n\t >> ', JSON.stringify(resp));
-    
     let gameRows = resp.rows.filter(x => x.challenger === challenger);
     if (gameRows.length === 0)
     {
@@ -226,6 +236,8 @@ async function eosjsLoadOrCreateGame(host, challenger){
       throw new Error(
         'Failed to load a unique game where host=' + host + ' and challenger=' + challenger
       );
+
+    console.info('get_table_rows\n\t >> ', JSON.stringify(gameRows));
 
     const game = {
       id: gameRows[0].host + '|' + gameRows[0].challenger, 

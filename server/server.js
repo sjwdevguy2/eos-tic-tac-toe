@@ -105,6 +105,15 @@ app.post('/game', async (req, res) => {
   res.send(JSON.stringify(game));
 });
 
+app.post('/restart', async (req, res) => {
+  const {player1, player2} = req.body;
+  if (!player1 || !player2)
+    return res.status(400).send('player names not supplied');
+  const id = player1 + '|' + player2;
+  gameMap[id].board = INDEXES.map(row => INDEXES.map(column => ''));
+  res.send(JSON.stringify(gameMap[id]));
+});
+
 app.post('/move', async (req, res) => {
   // const {gameId, row, column, marker} = req.body;
   const {gameId, row, column} = req.body;
@@ -137,7 +146,7 @@ app.post('/move', async (req, res) => {
     if (winner === '' && getMoveCount(game.board) === 9)
       winner =  'DRAW';
     game.winner = winner;
-    res.send(winner);
+    res.send(JSON.stringify(game));
 
     // Remove any WebSockets that are closing or closed.
     webSockets = webSockets.filter(ws => ws.readyState <= 1);

@@ -1,8 +1,15 @@
 import React, {useState} from 'react';
 import {postJson} from './fetch-util';
+import PropTypes from 'prop-types';
 import './Game.css';
 
 const INDEXES = [0, 1, 2];
+
+// Eliminate eslint error "Component should be written as a pure function"  
+// configure the game argument as required
+Game.propTypes = {
+  game: PropTypes.object.isRequired
+};
 
 function Game({game}) {
   const {board, id, /*player1, player2,*/ winner} = game;
