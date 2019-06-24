@@ -36,6 +36,24 @@ function App() {
   const opponentProps = useFormInput('');//('tttplayerooo');
   const opponent = opponentProps.value;
 
+  let moveCount = 0;
+  if (name !== ''
+    && opponent !== ''
+    && gameMap[name + '|' + opponent] !== undefined) {
+      moveCount = getMoveCount(gameMap[name + '|' + opponent].board);
+    }
+
+  const restartBtnDisabled = 
+    !name 
+    || !opponent 
+    || moveCount === 0;
+
+  const createBtnDisabled = 
+    !name 
+    || !opponent 
+    || (name === opponent)
+    || (gameMap[name + '|' + opponent] !== undefined);
+    
   // const clearGames = useCallback(() => {
   //   const newGameMap = Object.values(gameMap).reduce((acc, game) => {
   //     if (!game.winner) acc[game.id] = game;
@@ -95,6 +113,16 @@ function App() {
   //     alert(`Error loading games: ${e.message}`);
   //   }
   // };
+  function getMoveCount(board){
+    let moves = 0;
+    board.forEach(x => {
+      x.forEach(y => {
+        if(y !== '' && y !== 'undefined')
+          moves = moves + 1;
+      });
+    });
+    return moves;
+  }
 
   return (
     <div className="App">
@@ -108,10 +136,10 @@ function App() {
       <div>
         <label>Challenger</label>
         <input {...opponentProps} />
-        <button disabled={!name || !opponent} onClick={createGame}>
+        <button disabled={createBtnDisabled} onClick={createGame}>
           Open
         </button>
-        <button disabled={!name || !opponent} onClick={restartGame}>
+        <button disabled={restartBtnDisabled} onClick={restartGame}>
           Restart
         </button>
       </div>
